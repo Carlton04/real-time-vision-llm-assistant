@@ -1,61 +1,75 @@
 Real-Time Vision + Local LLM Assistant
 
-A real-time computer vision and voice-interaction system that combines YOLOv10 object detection, speech recognition, and a locally hosted LLM to create an object-grounded conversational assistant.
+A real-time computer vision and voice-interaction system combining YOLOv10 object detection, speech recognition, text-to-speech, and a locally hosted LLM through LM Studio.
 
-The system observes objects through a webcam, identifies them using a YOLOv10m detector fine-tuned on the SKU-110K dataset, listens to spoken questions, and uses the detected object as context for a local LLM running through LM Studio.
+The project was developed as part of an MSc research project exploring the integration of computer vision with language-based interaction.
 
 Demo
 
 ▶️ Watch the project demo on YouTube - https://youtu.be/F6J9RCXHqxQ
 
-The demo video is hosted on YouTube rather than stored in this repository because of its large file size.
-
+⸻
 
 Overview
 
-This project explores how computer vision, speech interfaces, and local language models can be combined into a single interactive system.
+This project combines several AI components into an interactive pipeline:
 
-The pipeline is:
+1. A camera captures the surrounding environment.
+2. A fine-tuned YOLOv10m model detects objects in real time.
+3. Detected object labels are stored as contextual information.
+4. The user asks questions using speech.
+5. Speech is converted into text.
+6. The system identifies whether the question relates to a detected object.
+7. The question and detected-object context are sent to a local LLM running through LM Studio.
+8. The generated response is converted back into speech.
 
-                    ┌─────────────────┐
-                    │     Webcam      │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │    YOLOv10m     │
-                    │ Object Detection│
-                    └────────┬────────┘
-                             │
-                       Detected objects
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Voice Interface │
-                    │ Speech-to-Text  │
-                    └────────┬────────┘
-                             │
-                         User query
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │  Context       │
-                    │ Object + Query  │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Local LLM via   │
-                    │    LM Studio    │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Text-to-Speech  │
-                    │     Response    │
-                    └─────────────────┘
+The current implementation uses the LLM primarily for object-grounded language interaction. The raw camera image is processed by YOLOv10; the LLM receives the detected object label as context rather than the camera image itself.
 
-The language model receives the detected object label as contextual information. The raw camera frame is processed by the object detector and is not directly passed to the LLM in this implementation.
+⸻
+
+System Architecture
+
+                Camera Input
+                     │
+                     ▼
+             ┌───────────────┐
+             │    YOLOv10m   │
+             │ Object        │
+             │ Detection     │
+             └───────┬───────┘
+                     │
+              Detected objects
+                     │
+                     ▼
+             ┌───────────────┐
+             │ Context       │
+             │ Generation    │
+             └───────┬───────┘
+                     │
+User Speech ────────►│
+                     ▼
+             ┌───────────────┐
+             │ Speech        │
+             │ Recognition   │
+             └───────┬───────┘
+                     │
+                Text question
+                     │
+                     ▼
+             ┌───────────────┐
+             │ Local LLM via │
+             │ LM Studio     │
+             └───────┬───────┘
+                     │
+                  Response
+                     │
+                     ▼
+             ┌───────────────┐
+             │ Text-to-Speech│
+             └───────┬───────┘
+                     │
+                     ▼
+                 Audio Output
 
 ⸻
 
@@ -63,64 +77,63 @@ Key Technical Components
 
 Computer Vision
 
-* YOLOv10m object detector
-* Fine-tuning on the SKU-110K retail object detection dataset
-* Webcam-based inference
-* Bounding-box visualization
-* Apple Silicon MPS acceleration when available
-* CPU fallback when MPS is unavailable
+* YOLOv10m for real-time object detection
+* Fine-tuned on the SKU-110K retail object detection dataset
+* OpenCV for camera capture and visualisation
+* Bounding-box visualisation during inference
+* GPU/device-aware execution using Apple Silicon MPS when available
 
 Voice Interaction
 
-* Speech recognition using SpeechRecognition
-* Text-to-speech using gTTS
-* Audio playback and speed adjustment using pydub
+* SpeechRecognition for speech-to-text
+* Google speech recognition service through the SpeechRecognition library
+* gTTS for text-to-speech
+* pydub for audio playback and speech-speed adjustment
+* Voice-based follow-up questions
 
 Local Language Model
 
-* Local LLM inference through LM Studio
+* LM Studio used to host the local LLM
 * OpenAI-compatible local API interface
-* Object detections are supplied as conversational context
-* No external LLM API is required for the language-model component during normal local execution
+* Model used by the current implementation:
+
+xtuner/llava-llama-3-8b-v1_1-gguf
+
+The LLM is provided with the user’s question together with detected-object context.
+
+Important: despite the model name containing “LLaVA”, the current implementation does not send the raw camera image to the LLM. Visual understanding is performed by YOLOv10, and the resulting object labels are passed to the language model.
 
 Engineering
 
 * Modular project structure
-* Separate training and inference scripts
-* Evaluation artifacts retained in the repository
-* Training metrics stored in CSV format
-* Model weights and datasets excluded from Git using .gitignore
+* Git/GitHub version control
+* Environment and model-weight exclusion through .gitignore
+* Evaluation artifacts from model training
+* Local inference architecture
+* Device-aware PyTorch execution
 
 ⸻
 
 Model Training
 
-The object detection component uses YOLOv10m, which was fine-tuned on the SKU-110K dataset.
+The object detection model was fine-tuned using the SKU-110K dataset.
 
-Training configuration used for the reported experiment:
-
-Parameter	Value
-Model	YOLOv10m
+Parameter	Configuration
+Base model	YOLOv10m
 Dataset	SKU-110K
-Epochs	20
+Training epochs	20
 Image size	640 × 640
 Batch size	8
-Device	Apple Silicon MPS when available
+Device	Apple MPS when available, otherwise CPU
 Workers	2
 
-The training code is available in:
-
-training/train_yolov10.py
-
-The repository does not include the original dataset or trained .pt model weights. These are intentionally excluded from version control because of their size and dataset/model distribution considerations.
+The trained model weights are intentionally not included in this repository.
 
 ⸻
 
 Evaluation Results
 
-The model was evaluated across 20 training epochs.
-
-Final validation results at epoch 20:
+The final evaluation results after 20 training epochs were:
 
 Metric	Result
 Precision	0.8739
@@ -128,79 +141,76 @@ Recall	0.7690
 mAP@50	0.8505
 mAP@50–95	0.5227
 
-The training run shows progressive improvement in detection performance throughout the experiment.
+These results are taken from the project’s recorded evaluation run in evaluation/results.csv.
 
-For example:
+The repository also contains visual evaluation artifacts including:
 
-* mAP@50 increased from 0.6408 at epoch 1 to 0.8505 at epoch 20.
-* mAP@50–95 increased from 0.3349 to 0.5227.
-* Precision increased from 0.6943 to 0.8739.
-* Recall increased from 0.5644 to 0.7690.
-
-The complete training history is available in:
-
-evaluation/results.csv
-
-Additional evaluation artifacts include:
-
-evaluation/
-├── confusion_matrix.png
-├── confusion_matrix_normalized.png
-├── F1_curve.png
-├── P_curve.png
-├── PR_curve.png
-├── R_curve.png
-├── results.png
-├── labels.jpg
-├── labels_correlogram.jpg
-└── validation_examples/
-
-These artifacts provide a visual record of the model’s training and validation behaviour.
+* Confusion matrix
+* Normalised confusion matrix
+* Precision curve
+* Recall curve
+* F1 curve
+* Precision–Recall curve
+* Training results
+* Label distribution visualisation
+* Validation prediction examples
 
 ⸻
 
 Interactive Inference Pipeline
 
-During inference, the system continuously processes webcam frames with YOLOv10.
+During inference, the system continuously processes camera frames:
 
-When an object is detected:
+Camera
+  ↓
+YOLOv10 Detection
+  ↓
+Detected Object Labels
+  ↓
+User Speech
+  ↓
+Speech Recognition
+  ↓
+Object Relevance Check
+  ↓
+Question + Object Context
+  ↓
+Local LLM
+  ↓
+Generated Answer
+  ↓
+Text-to-Speech
+  ↓
+Audio Response
 
-1. The object is displayed with a bounding box.
-2. The object label is stored as detected context.
-3. The system announces the detected object using text-to-speech.
-4. The user can ask a spoken question.
-5. Speech is converted into text.
-6. The system checks whether the question refers to a detected object.
-7. The relevant object label is passed to the local LLM as context.
-8. The LLM generates a response.
-9. The response is converted back to speech.
-
-This creates a simple vision-to-language interaction loop without requiring a cloud-based language model.
+The system also supports follow-up questions about the detected object.
 
 ⸻
 
-Local LLM Architecture
+Local LLM Integration
 
-The language model is accessed through the OpenAI-compatible API exposed by LM Studio:
+LM Studio provides a local OpenAI-compatible API endpoint.
 
-Application
-     │
-     ▼
-OpenAI-compatible API
-     │
-     ▼
-LM Studio
-     │
-     ▼
-Local LLM
+The application connects to:
 
-The current implementation uses:
+http://localhost:1234/v1
 
-xtuner/llava-llama-3-8b-v1_1-gguf
+The language model receives a structured prompt containing:
 
-The LLM is used for language understanding and response generation, while object detection is handled separately by YOLOv10m.
+User question
++
+Detected object context
 
-Therefore, this implementation should be viewed as an object-grounded vision-to-language assistant, rather than an end-to-end multimodal vision-language model.
+For example:
+
+Question:
+What is this object used for?
+Context:
+The detected object is bottle.
+
+The LLM then generates a natural-language response which is converted to speech.
+
+This architecture demonstrates how an object-detection system can be connected to a local language model to create a more interactive AI application.
 
 ⸻
 
@@ -210,6 +220,13 @@ real-time-vision-llm-assistant/
 │
 ├── evaluation/
 │   ├── validation_examples/
+│   │   ├── val_batch0_labels.jpg
+│   │   ├── val_batch0_pred.jpg
+│   │   ├── val_batch1_labels.jpg
+│   │   ├── val_batch1_pred.jpg
+│   │   ├── val_batch2_labels.jpg
+│   │   └── val_batch2_pred.jpg
+│   │
 │   ├── args.yaml
 │   ├── confusion_matrix.png
 │   ├── confusion_matrix_normalized.png
@@ -221,13 +238,17 @@ real-time-vision-llm-assistant/
 │   ├── R_curve.png
 │   ├── results.csv
 │   ├── results.png
-│   └── train_batch*.jpg
+│   └── training batch visualisations
 │
 ├── src/
 │   └── main.py
 │
 ├── training/
 │   └── train_yolov10.py
+│
+├── assets/
+│
+├── experiments/
 │
 ├── .gitignore
 ├── requirements.txt
@@ -237,88 +258,95 @@ real-time-vision-llm-assistant/
 
 Installation
 
-Clone the repository:
+1. Clone the repository
 
 git clone https://github.com/Carlton04/real-time-vision-llm-assistant.git
 cd real-time-vision-llm-assistant
 
-Create and activate a virtual environment:
+2. Create a virtual environment
 
 python -m venv .venv
+
+Activate it on macOS/Linux:
+
 source .venv/bin/activate
 
-Install the Python dependencies:
+3. Install dependencies
 
 pip install -r requirements.txt
-
-On macOS, additional system configuration may be required for microphone/audio dependencies such as PyAudio.
 
 ⸻
 
 Model Setup
 
-The inference script expects the YOLOv10m weights:
+The inference script expects the YOLOv10 model file:
 
 yolov10m.pt
 
-Place the model weights in the project directory as expected by:
+Place the model weights where the Ultralytics loader can access them, or allow Ultralytics to download the pretrained model when supported by your environment.
 
-model = YOLO("yolov10m.pt")
-
-The trained custom model weights are intentionally not included in this repository.
+The repository does not include .pt model weights because model files are excluded through .gitignore.
 
 ⸻
 
 LM Studio Setup
 
-Install and run LM Studio locally, then load a compatible local language model.
+Install and launch LM Studio separately.
 
-The application expects an OpenAI-compatible server running at:
+Load a compatible local language model and start the local server.
+
+The application expects the OpenAI-compatible endpoint:
 
 http://localhost:1234/v1
 
-The application connects using:
+The current Python client configuration is:
 
 client = OpenAI(
     base_url="http://localhost:1234/v1",
     api_key="lm-studio"
 )
 
-The lm-studio value is a local placeholder used by the LM Studio OpenAI-compatible interface; it is not a cloud API key.
+The api_key value shown here is a local placeholder used by the LM Studio-compatible interface; it is not a real secret.
 
 ⸻
 
 Running the Assistant
 
-After installing the dependencies, starting the webcam, and launching the LM Studio local server:
+After installing the dependencies, loading the required YOLO model, and starting the LM Studio server:
 
 python src/main.py
 
-The application will:
+The system will:
 
-1. Open the webcam.
-2. Run YOLOv10 object detection.
-3. Announce newly detected objects.
-4. Listen for spoken questions.
-5. Match questions to detected objects.
-6. Query the local LLM.
-7. Speak the generated response.
+1. Open the camera.
+2. Detect objects using YOLOv10.
+3. Display bounding boxes and labels.
+4. Announce newly detected objects.
+5. Listen for a spoken question.
+6. Match the question to a detected object.
+7. Send the question and object context to the local LLM.
+8. Speak the generated response.
+9. Continue accepting follow-up questions.
 
 Press:
 
 q
 
-to exit the webcam detection loop.
+to exit the camera window.
 
 ⸻
 
 Training
 
-The training script is located at:
+The training workflow is located at:
 
 training/train_yolov10.py
 
-The experiment used:
+The script uses:
+
+model = YOLO("yolov10m.pt")
+
+and trains using:
 
 results = model.train(
     data=data_yaml,
@@ -333,66 +361,92 @@ results = model.train(
     plots=True
 )
 
-The SKU-110K dataset is not included in this repository. To reproduce the training experiment, the dataset must be obtained separately and the dataset configuration path supplied to the training workflow.
+The SKU-110K dataset and its YAML configuration are not included in this repository.
 
-Training outputs such as model checkpoints and runs/ directories are excluded from Git.
+Before running the training script, the dataset must be obtained separately and the SKU-110K.yaml path/configuration must be available to the training workflow.
+
+Training outputs such as model weights and runs/ are excluded from Git through .gitignore.
+
+⸻
+
+Reproducibility Notes
+
+This repository contains the application source code, training script, evaluation outputs, and documentation.
+
+The following are intentionally excluded:
+
+* Dataset files
+* Trained model weights
+* Training run directories
+* Temporary audio files
+* Virtual environments
+* IDE-specific files
+* API credentials and environment secrets
+
+This keeps the repository lightweight while documenting the main research and engineering workflow.
 
 ⸻
 
 Limitations
 
-This project is an experimental research/engineering prototype rather than a production deployment.
+The current prototype has several limitations:
 
-Current limitations include:
-
-* The language model operates on object labels rather than raw image features.
-* Object-to-question matching currently relies on simple label matching.
-* Speech recognition depends on microphone quality and speech recognition availability.
-* Text-to-speech uses an external gTTS service.
-* The YOLOv10 model weights are not included in the repository.
-* The SKU-110K dataset is not included.
-* The current system does not provide a formal latency benchmark.
-* The system has not been packaged as a production service or deployed to edge hardware.
+* Object detection performance depends on the training dataset and environment.
+* The application currently uses object labels as language-model context rather than passing raw images to the LLM.
+* Speech recognition depends on the configured speech-recognition service and network availability.
+* Text-to-speech also requires network access through gTTS.
+* The object-to-question matching currently relies on simple text matching.
+* Only the detected object labels are retained as conversational visual context.
+* The project is primarily a research prototype rather than a production deployment.
 
 ⸻
 
 Future Work
 
-Potential extensions include:
+Potential improvements include:
 
-* More robust semantic matching between spoken questions and detected objects.
-* Direct multimodal LLM input using image and language context.
-* Object tracking across frames.
-* Confidence-aware object selection.
-* Quantization and inference optimization for local deployment.
-* Formal latency and throughput benchmarking.
-* Improved speech recognition and fully local speech processing.
-* Containerized deployment.
-* Evaluation across additional object detection datasets.
-* More systematic ablation studies comparing model sizes and inference configurations.
+* More robust object-to-question grounding
+* Temporal tracking of detected objects
+* Confidence-aware object selection
+* Improved speech recognition and offline speech processing
+* Fully offline text-to-speech
+* Direct multimodal image-to-language reasoning
+* More sophisticated conversational memory
+* Object tracking across video frames
+* Quantitative latency benchmarking
+* Model optimisation and deployment using ONNX or other inference runtimes
+* Evaluation across additional datasets and real-world environments
 
 ⸻
 
 Skills Demonstrated
 
-This project demonstrates practical experience across several areas relevant to AI/ML research engineering:
+This project demonstrates practical experience across:
 
-* Computer vision
-* Object detection
-* Model fine-tuning
-* Dataset-driven experimentation
-* Evaluation and error analysis
-* Local LLM inference
-* Vision-to-language system design
-* Speech interfaces
-* Python
+* Computer Vision
+* Object Detection
+* YOLOv10
 * PyTorch
-* Ultralytics
-* OpenAI-compatible APIs
-* Apple Silicon / MPS acceleration
-* Experiment tracking
-* Git and GitHub
-* Reproducible project organization
+* OpenCV
+* Model Fine-Tuning
+* Dataset-Based Evaluation
+* Speech Recognition
+* Text-to-Speech
+* Local LLM Integration
+* LM Studio
+* OpenAI-Compatible APIs
+* Python
+* Git/GitHub
+* AI System Integration
+* Research Prototyping
+
+⸻
+
+Project Context
+
+This project was developed as part of an MSc research project investigating the integration of computer vision, synthetic data/model training, and language-based interaction.
+
+The repository presents the implementation as a standalone research-engineering project, including the inference application, training workflow, evaluation results, and supporting documentation.
 
 ⸻
 
@@ -401,3 +455,9 @@ Author
 Carlton
 
 GitHub: @Carlton04
+
+⸻
+
+License
+
+No open-source license has currently been specified for this repository.
