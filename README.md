@@ -213,45 +213,67 @@ The LLM then generates a natural-language response which is converted to speech.
 This architecture demonstrates how an object-detection system can be connected to a local language model to create a more interactive AI application.
 
 ⸻
+## Repository Structure
 
-real-time-vision-llm-assistant/
-│
-├── evaluation/
-│   ├── validation_examples/
-│   │   ├── val_batch0_labels.jpg
-│   │   ├── val_batch0_pred.jpg
-│   │   ├── val_batch1_labels.jpg
-│   │   ├── val_batch1_pred.jpg
-│   │   ├── val_batch2_labels.jpg
-│   │   └── val_batch2_pred.jpg
-│   │
-│   ├── args.yaml
-│   ├── confusion_matrix.png
-│   ├── confusion_matrix_normalized.png
-│   ├── F1_curve.png
-│   ├── labels.jpg
-│   ├── labels_correlogram.jpg
-│   ├── P_curve.png
-│   ├── PR_curve.png
-│   ├── R_curve.png
-│   ├── results.csv
-│   ├── results.png
-│   └── train_batch*.jpg
-│
-├── src/
-│   └── main.py
-│
-├── training/
-│   └── train_yolov10.py
-│
-├── assets/
-│
-├── experiments/
-│
-├── .gitignore
-├── requirements.txt
-└── README.md
-⸻
+    real-time-vision-llm-assistant/
+
+    ├── evaluation/
+
+    │   ├── validation_examples/
+
+    │   │   ├── val_batch0_labels.jpg
+
+    │   │   ├── val_batch0_pred.jpg
+
+    │   │   ├── val_batch1_labels.jpg
+
+    │   │   ├── val_batch1_pred.jpg
+
+    │   │   ├── val_batch2_labels.jpg
+
+    │   │   └── val_batch2_pred.jpg
+
+    │   ├── args.yaml
+
+    │   ├── confusion_matrix.png
+
+    │   ├── confusion_matrix_normalized.png
+
+    │   ├── F1_curve.png
+
+    │   ├── labels.jpg
+
+    │   ├── labels_correlogram.jpg
+
+    │   ├── P_curve.png
+
+    │   ├── PR_curve.png
+
+    │   ├── R_curve.png
+
+    │   ├── results.csv
+
+    │   ├── results.png
+
+    │   └── train_batch*.jpg
+
+    ├── src/
+
+    │   └── main.py
+
+    ├── training/
+
+    │   └── train_yolov10.py
+
+    ├── assets/
+
+    ├── experiments/
+
+    ├── .gitignore
+
+    ├── requirements.txt
+
+    └── README.md
 
 Installation
 
