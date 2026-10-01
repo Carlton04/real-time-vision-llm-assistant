@@ -1,0 +1,8 @@
+opencv-python
+torch
+ultralytics
+SpeechRecognition
+gTTS
+pydub
+openai
+PyAudio

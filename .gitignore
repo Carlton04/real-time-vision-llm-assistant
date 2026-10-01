@@ -1,0 +1,28 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Environment variables / secrets
+.env
+.env.*
+OPENAI_API_KEY
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+
+# Datasets
+datasets/
+
+# Training runs
+runs/
+
+# Temporary audio files
+temp.mp3
+*.wav
+*.mp3
+
+# IDE files
+.idea/
