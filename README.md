@@ -25,39 +25,21 @@ This project combines several AI components into an interactive pipeline:
 
 The current implementation uses the LLM primarily for object-grounded language interaction. The raw camera image is processed by YOLOv10; the LLM receives the detected object label as context rather than the camera image itself.
 
-Camera
-  |
-  v
-YOLOv10m Object Detection
-  |
-  v
-Detected Object Labels
-  |
-  v
-Object Context
-  |
-  +--------------------+
-  |                    |
-  v                    v
-User Speech       Detected Objects
-  |                    |
-  v                    |
-Speech Recognition     |
-  |                    |
-  v                    |
-Text Question ---------+
-  |
-  v
-Local LLM via LM Studio
-  |
-  v
-Generated Response
-  |
-  v
-Text-to-Speech
-  |
-  v
-Audio Output
+System Architecture
+
+Stage	Component	Output
+1	Camera	Live video frames
+2	YOLOv10m	Detected objects and bounding boxes
+3	Context Generation	Detected-object context
+4	Speech Recognition	User’s spoken question converted to text
+5	Object Relevance Check	Determines whether the question relates to a detected object
+6	Local LLM via LM Studio	Generates an answer using the detected-object context
+7	Text-to-Speech	Converts the generated answer into speech
+8	Audio Output	Spoken response to the user
+
+Pipeline
+
+Camera → YOLOv10m → Detected Objects → Speech Recognition → Object Relevance Check → Local LLM → Text-to-Speech → Audio Output
 
 Key Technical Components
 
