@@ -27,50 +27,50 @@ The current implementation uses the LLM primarily for object-grounded language i
 
 ⸻
 
-System Architecture
-
-                Camera Input
-                     │
-                     ▼
-             ┌───────────────┐
-             │    YOLOv10m   │
-             │ Object        │
-             │ Detection     │
-             └───────┬───────┘
-                     │
-              Detected objects
-                     │
-                     ▼
-             ┌───────────────┐
-             │ Context       │
-             │ Generation    │
-             └───────┬───────┘
-                     │
-User Speech ────────►│
-                     ▼
-             ┌───────────────┐
-             │ Speech        │
-             │ Recognition   │
-             └───────┬───────┘
-                     │
-                Text question
-                     │
-                     ▼
-             ┌───────────────┐
-             │ Local LLM via │
-             │ LM Studio     │
-             └───────┬───────┘
-                     │
-                  Response
-                     │
-                     ▼
-             ┌───────────────┐
-             │ Text-to-Speech│
-             └───────┬───────┘
-                     │
-                     ▼
-                 Audio Output
-
+Camera Input
+     │
+     ▼
+┌─────────────────┐
+│     YOLOv10m    │
+│ Object Detection│
+└────────┬────────┘
+         │
+         ▼
+ Detected Objects
+         │
+         ▼
+┌─────────────────┐
+│ Context         │
+│ Generation      │
+└────────┬────────┘
+         │
+         │
+User Speech ──────┐
+                  ▼
+         ┌─────────────────┐
+         │ Speech          │
+         │ Recognition     │
+         └────────┬────────┘
+                  │
+                  ▼
+            Text Question
+                  │
+                  ▼
+         ┌─────────────────┐
+         │ Local LLM via   │
+         │ LM Studio       │
+         └────────┬────────┘
+                  │
+                  ▼
+              Response
+                  │
+                  ▼
+         ┌─────────────────┐
+         │ Text-to-Speech  │
+         └────────┬────────┘
+                  │
+                  ▼
+             Audio Output
 ⸻
 
 Key Technical Components
@@ -214,8 +214,6 @@ This architecture demonstrates how an object-detection system can be connected t
 
 ⸻
 
-Repository Structure
-
 real-time-vision-llm-assistant/
 │
 ├── evaluation/
@@ -238,7 +236,7 @@ real-time-vision-llm-assistant/
 │   ├── R_curve.png
 │   ├── results.csv
 │   ├── results.png
-│   └── training batch visualisations
+│   └── train_batch*.jpg
 │
 ├── src/
 │   └── main.py
@@ -253,7 +251,6 @@ real-time-vision-llm-assistant/
 ├── .gitignore
 ├── requirements.txt
 └── README.md
-
 ⸻
 
 Installation
